@@ -21,6 +21,16 @@
 
     <!-- KHÔNG có Spring, Quarkus, Jersey - chỉ Java SE thuần -->
 
+    <dependencies>
+        <!-- MySQL JDBC Driver -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.3.0</version>
+        </dependency>
+    </dependencies>
+
+
     <build>
         <plugins>
             <plugin>

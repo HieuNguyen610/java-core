@@ -1,5 +1,7 @@
-D:\project_java\quarkus-i18n-demo\core-java-api\src\main\java\com\example\api\corejavaproject\model\Product.java
-D:\project_java\quarkus-i18n-demo\core-java-api\src\main\java\com\example\api\corejavaproject\repository\ProductRepository.java
-D:\project_java\quarkus-i18n-demo\core-java-api\src\main\java\com\example\api\corejavaproject\server\Main.java
-D:\project_java\quarkus-i18n-demo\core-java-api\src\main\java\com\example\api\corejavaproject\server\ProductHttpServer.java
-D:\project_java\quarkus-i18n-demo\core-java-api\src\main\java\com\example\api\corejavaproject\service\ProductService.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\db\DatabaseConnection.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\db\DbConfig.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\model\Product.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\repository\ProductRepository.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\server\Main.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\server\ProductHttpServer.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\service\ProductService.java
