@@ -1,0 +1,36 @@
+# Docker Compose for Oracle 19c XE (Express Edition - FREE)
+# No license required for XE
+#
+# Oracle XE Limits (free):
+# - 12GB user data
+# - 2GB RAM
+# - 2 CPU threads
+
+version: '3.8'
+
+services:
+  oracle19c:
+    image: gvenzl/oracle-xe:19-slim
+    container_name: oracle19c
+    environment:
+      ORACLE_PASSWORD: oracle19c_password
+      ORACLE_DATABASE: ORCL
+    ports:
+      - "1521:1521"    # Oracle listener (for JDBC)
+      - "5500:5500"    # Express Edition HTTP console (optional)
+    volumes:
+      # Mount sql folder to startup scripts directory
+      # Scripts in /opt/oracle/scripts/startup run automatically on first start
+      - ./sql:/opt/oracle/scripts/startup:ro
+      # Persist data between restarts
+      - oracle_data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  oracle_data:
+    driver: local
