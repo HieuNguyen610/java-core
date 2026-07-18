@@ -6,13 +6,13 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * Utility class to manage MySQL database connections using JDBC.
+ * Utility class to manage Oracle database connections using JDBC.
  * Uses core Java SE - no frameworks.
  */
 public class DatabaseConnection {
 
-    private static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/core_java_db";
-    private static final String DEFAULT_USER = "root";
+    private static final String DEFAULT_URL = "jdbc:oracle:thin:@//localhost:1521/ORCL";
+    private static final String DEFAULT_USER = "system";
     private static final String DEFAULT_PASSWORD = "";
 
     private final String url;
@@ -29,6 +29,10 @@ public class DatabaseConnection {
         this.password = password;
     }
 
+    public DatabaseConnection(DbConfig config) {
+        this(config.getJdbcUrl(), config.getUsername(), config.getPassword());
+    }
+
     /**
      * Creates a new database connection.
      *
@@ -37,10 +41,10 @@ public class DatabaseConnection {
      */
     public Connection getConnection() throws SQLException {
         try {
-            // Load the MySQL JDBC driver (optional for modern drivers, but good practice)
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            // Load the Oracle JDBC driver
+            Class.forName("oracle.jdbc.OracleDriver");
         } catch (ClassNotFoundException e) {
-            throw new SQLException("MySQL JDBC Driver not found", e);
+            throw new SQLException("Oracle JDBC Driver not found. Make sure ojdbc8.jar is in lib/", e);
         }
         return DriverManager.getConnection(url, user, password);
     }
@@ -50,9 +54,9 @@ public class DatabaseConnection {
      */
     public Connection getConnection(Properties props) throws SQLException {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName("oracle.jdbc.OracleDriver");
         } catch (ClassNotFoundException e) {
-            throw new SQLException("MySQL JDBC Driver not found", e);
+            throw new SQLException("Oracle JDBC Driver not found. Make sure ojdbc8.jar is in lib/", e);
         }
         return DriverManager.getConnection(url, props);
     }
@@ -60,9 +64,9 @@ public class DatabaseConnection {
     /**
      * Factory method to create a connection with connection string components.
      */
-    public static Connection connect(String host, int port, String database, String username, String password)
+    public static Connection connect(String host, int port, String serviceName, String username, String password)
             throws SQLException {
-        String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=false&serverTimezone=UTC", host, port, database);
+        String url = String.format("jdbc:oracle:thin:@//%s:%d/%s", host, port, serviceName);
         return connect(url, username, password);
     }
 
@@ -71,9 +75,9 @@ public class DatabaseConnection {
      */
     public static Connection connect(String jdbcUrl, String username, String password) throws SQLException {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName("oracle.jdbc.OracleDriver");
         } catch (ClassNotFoundException e) {
-            throw new SQLException("MySQL JDBC Driver not found", e);
+            throw new SQLException("Oracle JDBC Driver not found. Make sure ojdbc8.jar is in lib/", e);
         }
         return DriverManager.getConnection(jdbcUrl, username, password);
     }

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repository using raw JDBC for MySQL database.
+ * Repository using raw JDBC for Oracle database.
  * Replaces JPA/Hibernate with plain JDBC queries - core Java SE only.
  */
 public class ProductRepository {
@@ -28,46 +28,76 @@ public class ProductRepository {
      * Saves a product to the database.
      * If product.id == 0, it's a new product (INSERT).
      * Otherwise, it updates existing product (UPDATE).
+     *
+     * Note: Oracle uses SEQUENCE/IDENTITY for auto-increment, not AUTO_INCREMENT.
+     * For insert, we use RETURNING clause to get generated ID.
      */
     public Product save(Product product) {
-        String sql;
         boolean isInsert = product.getId() == 0;
 
         if (isInsert) {
-            sql = "INSERT INTO products (name, price, description) VALUES (?, ?, ?)";
+            return insertProduct(product);
         } else {
-            sql = "UPDATE products SET name = ?, price = ?, description = ? WHERE id = ?";
+            return updateProduct(product);
         }
+    }
+
+    private Product insertProduct(Product product) {
+        // Oracle: Use RETURNING clause instead of getGeneratedKeys()
+        String sql = "INSERT INTO products (name, price, description) VALUES (?, ?, ?)";
 
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, product.getName());
             stmt.setDouble(2, product.getPrice());
             stmt.setString(3, product.getDescription());
 
-            if (!isInsert) {
-                stmt.setInt(4, product.getId());
-            }
-
             int affectedRows = stmt.executeUpdate();
 
-            if (isInsert && affectedRows > 0) {
-                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        product.setId(generatedKeys.getInt(1));
+            if (affectedRows > 0) {
+                // Oracle: Get the generated ID using RETURNING clause
+                try (PreparedStatement idStmt = conn.prepareStatement(
+                        "SELECT products_seq.CURRVAL FROM DUAL")) {
+                    try (ResultSet rs = idStmt.executeQuery()) {
+                        if (rs.next()) {
+                            product.setId(rs.getInt(1));
+                        }
                     }
                 }
             }
             return product;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save product: " + product, e);
+            throw new RuntimeException("Failed to insert product: " + product, e);
+        }
+    }
+
+    private Product updateProduct(Product product) {
+        String sql = "UPDATE products SET name = ?, price = ?, description = ? WHERE id = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, product.getName());
+            stmt.setDouble(2, product.getPrice());
+            stmt.setString(3, product.getDescription());
+            stmt.setInt(4, product.getId());
+
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new RuntimeException("Product not found with id: " + product.getId());
+            }
+            return product;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update product: " + product, e);
         }
     }
 
     public Optional<Product> findById(int id) {
-        String sql = "SELECT id, name, price, description, created_at, updated_at FROM products WHERE id = ?";
+        // Oracle: Use FETCH FIRST 1 ROWS ONLY instead of LIMIT
+        String sql = "SELECT id, name, price, description FROM products WHERE id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -87,7 +117,9 @@ public class ProductRepository {
     }
 
     public List<Product> findAll() {
-        String sql = "SELECT id, name, price, description, created_at, updated_at FROM products ORDER BY id";
+        // Oracle: ORDER BY id
+        // For pagination, use FETCH FIRST N ROWS ONLY (Oracle 12c+)
+        String sql = "SELECT id, name, price, description FROM products ORDER BY id";
         List<Product> products = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -120,7 +152,8 @@ public class ProductRepository {
     }
 
     public List<Product> findByNameContaining(String keyword) {
-        String sql = "SELECT id, name, price, description, created_at, updated_at FROM products WHERE LOWER(name) LIKE ?";
+        // Oracle: Use UPPER() or LOWER() for case-insensitive search
+        String sql = "SELECT id, name, price, description FROM products WHERE LOWER(name) LIKE ? ORDER BY id";
         List<Product> products = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -142,22 +175,53 @@ public class ProductRepository {
 
     /**
      * Creates the products table if it doesn't exist.
+     * Oracle uses IDENTITY column (Oracle 12c+) instead of AUTO_INCREMENT.
+     * Also creates a sequence for manual ID generation.
      */
     public void createTableIfNotExists() {
-        String sql = """
-            CREATE TABLE IF NOT EXISTS products (
-                id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                price DECIMAL(10, 2) NOT NULL,
-                description TEXT,
+        String createSequenceSql = """
+            BEGIN
+                EXECUTE IMMEDIATE 'CREATE SEQUENCE products_seq START WITH 1 INCREMENT BY 1';
+            EXCEPTION
+                WHEN OTHERS THEN
+                    IF SQLCODE = -2289 THEN NULL;
+                    ELSE RAISE;
+                END IF;
+            END;
+            """;
+
+        String createTableSql = """
+            CREATE TABLE products (
+                id NUMBER(10) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                name VARCHAR2(255) NOT NULL,
+                price NUMBER(10, 2) NOT NULL,
+                description CLOB,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """;
 
+        String checkTableSql = "SELECT COUNT(*) FROM user_tables WHERE table_name = 'PRODUCTS'";
+
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
+
+            // Check if table exists
+            try (ResultSet rs = stmt.executeQuery(checkTableSql)) {
+                if (rs.next() && rs.getInt(1) == 0) {
+                    // Table doesn't exist, create it
+                    try {
+                        stmt.execute(createTableSql);
+                        System.out.println("Products table created successfully.");
+                    } catch (SQLException e) {
+                        // Table might already exist (race condition)
+                        if (e.getErrorCode() != 955) { // ORA-00955: name is already used by an existing object
+                            throw e;
+                        }
+                    }
+                }
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create products table", e);
         }
