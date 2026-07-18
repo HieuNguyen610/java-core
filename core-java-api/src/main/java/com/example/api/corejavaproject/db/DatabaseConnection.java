@@ -11,7 +11,8 @@ import java.util.Properties;
  */
 public class DatabaseConnection {
 
-    private static final String DEFAULT_URL = "jdbc:oracle:thin:@//localhost:1521/ORCL";
+    // Oracle 21c XE default: ORCLPDB1 (Pluggable Database)
+    private static final String DEFAULT_URL = "jdbc:oracle:thin:@//localhost:1521/ORCLPDB1";
     private static final String DEFAULT_USER = "system";
     private static final String DEFAULT_PASSWORD = "";
 
