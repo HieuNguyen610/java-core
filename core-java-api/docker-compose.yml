@@ -1,5 +1,9 @@
-# Docker Compose for Oracle 19c XE (Express Edition - FREE)
+# Docker Compose for Oracle XE (Express Edition - FREE)
 # No license required for XE
+#
+# Available versions:
+#   - 21-slim  : Oracle 21c XE (recommended - newest)
+#   - 18-slim  : Oracle 18c XE
 #
 # Oracle XE Limits (free):
 # - 12GB user data
@@ -10,11 +14,11 @@ version: '3.8'
 
 services:
   oracle19c:
-    image: gvenzl/oracle-xe:19-slim
+    image: gvenzl/oracle-xe:21-slim
     container_name: oracle19c
     environment:
       ORACLE_PASSWORD: oracle19c_password
-      ORACLE_DATABASE: ORCL
+      ORACLE_DATABASE: ORCLPDB1
     ports:
       - "1521:1521"    # Oracle listener (for JDBC)
       - "5500:5500"    # Express Edition HTTP console (optional)

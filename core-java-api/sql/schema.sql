@@ -1,15 +1,23 @@
--- Oracle 19c Schema for Core Java API
--- Run as: sqlplus username/password@//host:port/ORCL @schema.sql
+-- Oracle 21c XE Schema for Core Java API
+-- Database: ORCLPDB1 (Pluggable Database)
+-- Run as: sqlplus system/password@//localhost:1521/ORCLPDB1 @schema.sql
 
 -- Drop existing objects (in correct order to avoid FK issues)
+DECLARE
+    v_count NUMBER;
 BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE products CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        IF SQLCODE != -942 THEN RAISE; END IF;
+    -- Check if table exists
+    SELECT COUNT(*) INTO v_count FROM user_tables WHERE table_name = 'PRODUCTS';
+    IF v_count > 0 THEN
+        EXECUTE IMMEDIATE 'DROP TABLE products CASCADE CONSTRAINTS';
+    END IF;
+
+    -- Drop sequence if exists
+    SELECT COUNT(*) INTO v_count FROM user_sequences WHERE sequence_name = 'PRODUCTS_SEQ';
+    IF v_count > 0 THEN
+        EXECUTE IMMEDIATE 'DROP SEQUENCE products_seq';
+    END IF;
 END;
-/
-DROP SEQUENCE products_seq;
 /
 
 -- Create sequence for product IDs

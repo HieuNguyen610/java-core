@@ -30,7 +30,7 @@ public class DbConfig {
         return new DbConfig(
             getEnv("DB_HOST", "localhost"),
             getEnvInt("DB_PORT", 1521),
-            getEnv("DB_NAME", "ORCL"),
+            getEnv("DB_NAME", "ORCLPDB1"),  // Oracle 21c XE default PDB
             getEnv("DB_USER", "system"),
             getEnv("DB_PASSWORD", ""),
             getEnvBool("DB_SSL", false)
@@ -61,11 +61,11 @@ public class DbConfig {
 
     /**
      * Builds Oracle JDBC connection string using Thin driver.
+     * Format: jdbc:oracle:thin:@//host:port/serviceName (Service Name format)
      * Format: jdbc:oracle:thin:@host:port:SID (for SID-based)
-     * Format: jdbc:oracle:thin:@//host:port/serviceName (for Service Name)
      */
     public String getJdbcUrl() {
-        // Oracle 19c typically uses Service Name format
+        // Oracle 21c XE uses Service Name format
         return String.format("jdbc:oracle:thin:@//%s:%d/%s", host, port, database);
     }
 

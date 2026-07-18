@@ -1,20 +1,26 @@
-# Core Java API with Oracle 19c
+# Core Java API with Oracle 21c XE
 
-Pure Java SE REST API without frameworks, connected to Oracle 19c database.
+Pure Java SE REST API without frameworks, connected to Oracle 21c XE database.
 
-## Features
+> **Note:** Using Oracle 21c XE (gvenzl/oracle-xe:21-slim) instead of 19c because the 19c slim variant is not available on Docker Hub. Oracle 21c XE is also FREE and fully compatible.
 
-- No Spring, no Maven dependency (optional)
-- Pure `com.sun.net.httpserver` for HTTP
-- Raw JDBC for Oracle 19c
-- Manual dependency management via `lib/` directory
+## Oracle XE - Licensing
+
+**Oracle XE (Express Edition) is FREE** - no license required.
+
+### XE Limitations (free):
+- 12GB user data max
+- 2GB RAM max
+- 2 CPU threads max
 
 ## Quick Start
 
-### 1. Start Oracle 19c (FREE - no license required)
+### 1. Start Oracle 21c XE (FREE - no license required)
 
 ```powershell
 cd core-java-api
+
+# Pull image and start container
 docker-compose up -d
 
 # Wait 5-10 minutes for Oracle to initialize
@@ -24,14 +30,14 @@ docker exec oracle19c healthcheck.sh
 ### 2. Create Database Schema
 
 ```powershell
+# Run schema automatically (mounted via docker-compose)
+# Or manually:
+
 # Connect using SQL*Plus
-docker exec -it oracle19c sqlplus system/oracle19c_password@//localhost:1521/ORCL
+docker exec -it oracle19c sqlplus system/oracle19c_password@//localhost:1521/ORCLPDB1
 
-# Run inside SQL*Plus:
+# Run schema inside SQL*Plus:
 # SQL> @/opt/oracle/scripts/startup/schema.sql
-
-# Or run directly:
-docker exec -i oracle19c sqlplus system/oracle19c_password@//localhost:1521/ORCL @schema.sql
 ```
 
 ### 3. Build & Run
@@ -47,26 +53,15 @@ mvn compile exec:java -Dexec.mainClass="com.example.api.corejavaproject.server.M
 .\build.bat run
 ```
 
-## Oracle 19c XE - Licensing
-
-**Oracle XE (Express Edition) is FREE** - no license required.
-
-### XE Limitations (free):
-- 12GB user data max
-- 2GB RAM max
-- 2 CPU threads max
-
-For production with higher requirements, see [Oracle SE/EE licensing](https://www.oracle.com/database/licensing/).
-
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | DB_HOST | localhost | Oracle host |
 | DB_PORT | 1521 | Oracle port |
-| DB_NAME | ORCL | Service Name |
+| DB_NAME | ORCLPDB1 | Service Name (Pluggable Database) |
 | DB_USER | system | Username |
-| DB_PASSWORD | (empty) | Password |
+| DB_PASSWORD | oracle19c_password | Password |
 
 Set before running:
 ```powershell
@@ -120,7 +115,7 @@ core-java-api/
 │       ├── repository/         # JDBC repository
 │       ├── server/             # HTTP server
 │       └── service/            # Business logic
-├── docker-compose.yml           # Oracle 19c Docker
+├── docker-compose.yml           # Oracle 21c XE Docker
 ├── build.bat                   # Build script (no Maven)
 ├── pom.xml                     # Maven config (optional)
 └── MANIFEST.MF                 # JAR manifest
@@ -142,7 +137,7 @@ docker-compose down -v
 docker logs -f oracle19c
 
 # Connect to SQL*Plus
-docker exec -it oracle19c sqlplus system/oracle19c_password@//localhost:1521/ORCL
+docker exec -it oracle19c sqlplus system/oracle19c_password@//localhost:1521/ORCLPDB1
 ```
 
 ## Troubleshooting
@@ -164,3 +159,12 @@ docker logs oracle19c
 - Ensure `lib/ojdbc8.jar` exists
 - For manual build: `.\build.bat compile`
 - For Maven: `mvn dependency:copy-dependencies`
+
+## Available Oracle XE Docker Images
+
+| Tag | Description |
+|-----|-------------|
+| 21-slim | Oracle 21c XE (recommended) |
+| 21-full | Oracle 21c XE with full features |
+| 18-slim | Oracle 18c XE |
+| 18-full | Oracle 18c XE with full features |
