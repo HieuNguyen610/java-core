@@ -1,9 +1,0 @@
-com\example\api\corejavaproject\repository\ProductRepository.class
-com\example\api\corejavaproject\db\DatabaseConnection.class
-com\example\api\corejavaproject\server\ProductHttpServer.class
-com\example\api\corejavaproject\server\ProductHttpServer$ProductHandler.class
-com\example\api\corejavaproject\server\ProductHttpServer$SearchHandler.class
-com\example\api\corejavaproject\db\DbConfig.class
-com\example\api\corejavaproject\service\ProductService.class
-com\example\api\corejavaproject\server\Main.class
-com\example\api\corejavaproject\model\Product.class

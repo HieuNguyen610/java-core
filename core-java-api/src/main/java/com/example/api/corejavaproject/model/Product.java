@@ -1,8 +1,19 @@
 package com.example.api.corejavaproject.model;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * Model class - không có annotation gì cả (khác với Quarkus/Spring dùng @Entity)
+ *
+ * JAXB annotations added for SOAP XML serialization.
  */
+@XmlRootElement(name = "Product")
+@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlType(name = "Product", propOrder = {"id", "name", "price", "description"})
 public class Product {
     private int id;
     private String name;
