@@ -28,6 +28,27 @@
             <artifactId>ojdbc8</artifactId>
             <version>19.8.0.0</version>
         </dependency>
+
+        <!-- Apache Kafka Clients -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+
+        <!-- Apache ORC (for reading ORC datalake files) -->
+        <dependency>
+            <groupId>org.apache.orc</groupId>
+            <artifactId>orc-core</artifactId>
+            <version>1.9.2</version>
+        </dependency>
+
+        <!-- Hive Storage API (required by ORC) -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>3.3.6</version>
+        </dependency>
     </dependencies>
 
     <build>

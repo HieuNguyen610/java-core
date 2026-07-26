@@ -1,5 +1,10 @@
 D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\db\DatabaseConnection.java
 D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\db\DbConfig.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\kafka\KafkaUserConsumer.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\kafka\KafkaUserProducer.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\kafka\OrcKafkaProducer.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\kafka\OrcReader.java
+D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\model\KafkaUser.java
 D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\model\Product.java
 D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\repository\ProductRepository.java
 D:\project_java\java-core\core-java-api\src\main\java\com\example\api\corejavaproject\server\Main.java
